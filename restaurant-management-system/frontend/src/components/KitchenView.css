@@ -1,0 +1,281 @@
+.kitchen-view {
+  padding: 1rem;
+  min-height: calc(100vh - 120px);
+}
+
+.kitchen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.kitchen-header h1 {
+  color: #1f2937;
+  font-size: 2rem;
+}
+
+.order-count {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #667eea;
+  background: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Filter Tabs */
+.filter-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #e5e7eb;
+  background: white;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.filter-tab:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.filter-tab.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.empty-text {
+  font-size: 1.25rem;
+  color: #6b7280;
+}
+
+/* Kitchen Orders Grid */
+.kitchen-orders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.kitchen-order-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 5px solid transparent;
+  transition: all 0.3s;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kitchen-order-card.pending {
+  border-left-color: #f59e0b;
+}
+
+.kitchen-order-card.preparing {
+  border-left-color: #3b82f6;
+}
+
+.kitchen-order-card.urgent {
+  border-left-color: #ef4444;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+  }
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.order-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.order-table {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.order-time {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.order-status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-preparing {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-ready {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+/* Order Items */
+.order-items-section {
+  margin-bottom: 1.5rem;
+}
+
+.kitchen-order-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  font-size: 1.125rem;
+}
+
+.kitchen-order-item:last-child {
+  margin-bottom: 0;
+}
+
+.item-quantity {
+  font-weight: bold;
+  color: #667eea;
+  min-width: 40px;
+  text-align: center;
+  background: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+}
+
+.item-name {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+/* Order Notes */
+.order-notes {
+  background: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  color: #92400e;
+}
+
+.order-notes strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+/* Order Actions */
+.order-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-block {
+  width: 100%;
+  justify-content: center;
+  font-size: 1.125rem;
+  padding: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .kitchen-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .kitchen-orders-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-tabs {
+    width: 100%;
+  }
+
+  .filter-tab {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .kitchen-orders-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Print styles for kitchen orders */
+@media print {
+  .kitchen-header,
+  .filter-tabs,
+  .order-actions {
+    display: none;
+  }
+
+  .kitchen-order-card {
+    page-break-inside: avoid;
+    border: 2px solid #000;
+  }
+}

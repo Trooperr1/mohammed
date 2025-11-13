@@ -1,0 +1,142 @@
+.receipt-modal {
+  max-width: 500px;
+}
+
+.receipt-container {
+  background: white;
+  padding: 2rem;
+  font-family: 'Courier New', monospace;
+}
+
+.receipt-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.receipt-header h1 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #1f2937;
+}
+
+.receipt-header p {
+  margin: 0.25rem 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.receipt-divider {
+  border-top: 2px dashed #d1d5db;
+  margin: 1rem 0;
+}
+
+.receipt-info,
+.receipt-totals {
+  margin: 1rem 0;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.5rem 0;
+  font-size: 0.875rem;
+}
+
+.receipt-row span:first-child {
+  color: #6b7280;
+}
+
+.receipt-row span:last-child {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.receipt-items {
+  margin: 1rem 0;
+}
+
+.receipt-items table {
+  width: 100%;
+  font-size: 0.875rem;
+}
+
+.receipt-items th {
+  text-align: left;
+  padding: 0.5rem 0;
+  color: #6b7280;
+  font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.receipt-items td {
+  padding: 0.5rem 0;
+  color: #1f2937;
+  border-bottom: none;
+}
+
+.receipt-items td:nth-child(2),
+.receipt-items td:nth-child(3),
+.receipt-items td:nth-child(4),
+.receipt-items th:nth-child(2),
+.receipt-items th:nth-child(3),
+.receipt-items th:nth-child(4) {
+  text-align: right;
+}
+
+.total-row {
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid #e5e7eb;
+}
+
+.total-row span {
+  color: #1f2937;
+}
+
+.receipt-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.receipt-footer p {
+  margin: 0.5rem 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.receipt-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+/* Print Styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .receipt-container,
+  .receipt-container * {
+    visibility: visible;
+  }
+
+  .receipt-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .receipt-divider {
+    border-style: solid;
+  }
+}
