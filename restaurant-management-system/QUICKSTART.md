@@ -7,7 +7,21 @@ Get the restaurant management system running in 5 minutes!
 - Node.js installed (v14+)
 - Terminal/Command Prompt access
 
-## 🚀 Quick Setup (5 steps)
+## ⚡ Super Quick Start (2 steps - FASTEST!)
+
+```bash
+# 1. Install dependencies and setup database
+npm install && npm run setup
+
+# 2. Start both servers
+npm run dev
+```
+
+That's it! The app opens at `http://localhost:3000` 🎉
+
+---
+
+## 🚀 Quick Setup (5 steps - Manual Control)
 
 ### 1. Install Backend
 
