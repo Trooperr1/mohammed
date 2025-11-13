@@ -1,0 +1,353 @@
+// Prisma schema for Swiss Restaurant POS System
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User roles enum
+enum UserRole {
+  ADMIN
+  MANAGER
+  WAITER
+  KITCHEN
+  CASHIER
+}
+
+// Table status enum
+enum TableStatus {
+  AVAILABLE
+  OCCUPIED
+  NEEDS_SERVICE
+  CHECK_REQUESTED
+}
+
+// Order status enum
+enum OrderStatus {
+  NEW
+  PREPARING
+  READY
+  SERVED
+  PAID
+  CANCELLED
+}
+
+// Order type enum
+enum OrderType {
+  DINE_IN
+  TAKEAWAY
+  COUNTER
+}
+
+// Payment method enum
+enum PaymentMethod {
+  CASH
+  CARD
+  TWINT
+  APPLE_PAY
+  GOOGLE_PAY
+}
+
+// Payment status enum
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+// VAT rate enum
+enum VATRate {
+  STANDARD  // 7.7%
+  REDUCED   // 2.5%
+}
+
+// User model - Staff members
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  pin           String   // Hashed PIN for quick login
+  role          UserRole
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  orders        Order[]  @relation("WaiterOrders")
+  shifts        Shift[]
+
+  @@index([email])
+  @@index([role])
+}
+
+// Restaurant tables
+model Table {
+  id            String      @id @default(cuid())
+  number        Int         @unique
+  capacity      Int
+  status        TableStatus @default(AVAILABLE)
+  section       String?     // indoor, outdoor, bar
+  x             Int?        // X position on floor plan
+  y             Int?        // Y position on floor plan
+  currentOrder  String?     // Current active order ID
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  orders        Order[]
+
+  @@index([status])
+  @@index([section])
+}
+
+// Menu categories
+model Category {
+  id            String     @id @default(cuid())
+  name          String
+  nameDE        String?    // German
+  nameFR        String?    // French
+  nameIT        String?    // Italian
+  sortOrder     Int        @default(0)
+  active        Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  // Relations
+  menuItems     MenuItem[]
+
+  @@index([active])
+  @@index([sortOrder])
+}
+
+// Menu items
+model MenuItem {
+  id                String        @id @default(cuid())
+  name              String
+  nameDE            String?       // German
+  nameFR            String?       // French
+  nameIT            String?       // Italian
+  description       String?
+  descriptionDE     String?
+  descriptionFR     String?
+  descriptionIT     String?
+  price             Decimal       @db.Decimal(10, 2)
+  vatRate           VATRate       @default(STANDARD)
+  image             String?
+  allergens         String[]      // Array of allergen codes
+  available         Boolean       @default(true)
+  preparationTime   Int?          // Minutes
+  categoryId        String
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  category          Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  modifiers         Modifier[]
+  orderItems        OrderItem[]
+  inventoryItems    InventoryItem[]
+
+  @@index([categoryId])
+  @@index([available])
+}
+
+// Item modifiers (extras, sizes, etc.)
+model Modifier {
+  id            String   @id @default(cuid())
+  name          String
+  nameDE        String?
+  nameFR        String?
+  nameIT        String?
+  priceAdjust   Decimal  @db.Decimal(10, 2)
+  menuItemId    String
+  available     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  menuItem      MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@index([menuItemId])
+}
+
+// Orders
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique
+  type            OrderType     @default(DINE_IN)
+  status          OrderStatus   @default(NEW)
+  tableId         String?
+  waiterId        String?
+  customerName    String?       // For takeaway orders
+  customerPhone   String?
+  notes           String?
+  subtotal        Decimal       @db.Decimal(10, 2)
+  vatAmount       Decimal       @db.Decimal(10, 2)
+  discountAmount  Decimal       @db.Decimal(10, 2) @default(0)
+  total           Decimal       @db.Decimal(10, 2)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  completedAt     DateTime?
+
+  // Relations
+  table           Table?        @relation(fields: [tableId], references: [id])
+  waiter          User?         @relation("WaiterOrders", fields: [waiterId], references: [id])
+  orderItems      OrderItem[]
+  payments        Payment[]
+
+  @@index([status])
+  @@index([type])
+  @@index([tableId])
+  @@index([waiterId])
+  @@index([createdAt])
+}
+
+// Order items
+model OrderItem {
+  id              String   @id @default(cuid())
+  orderId         String
+  menuItemId      String
+  quantity        Int
+  unitPrice       Decimal  @db.Decimal(10, 2)
+  vatRate         VATRate
+  modifiers       String[] // Array of modifier names
+  notes           String?
+  subtotal        Decimal  @db.Decimal(10, 2)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem        MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@index([orderId])
+  @@index([menuItemId])
+}
+
+// Payments
+model Payment {
+  id              String        @id @default(cuid())
+  orderId         String
+  amount          Decimal       @db.Decimal(10, 2)
+  method          PaymentMethod
+  status          PaymentStatus @default(PENDING)
+  transactionRef  String?       // TWINT, Stripe reference
+  cardLast4       String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  order           Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Inventory items
+model InventoryItem {
+  id              String   @id @default(cuid())
+  name            String
+  unit            String   // kg, pcs, liters, etc.
+  quantity        Decimal  @db.Decimal(10, 2)
+  minQuantity     Decimal  @db.Decimal(10, 2)
+  cost            Decimal  @db.Decimal(10, 2)
+  supplierId      String?
+  menuItemId      String?
+  lastRestocked   DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  supplier        Supplier?     @relation(fields: [supplierId], references: [id])
+  menuItem        MenuItem?     @relation(fields: [menuItemId], references: [id])
+  stockLogs       StockLog[]
+
+  @@index([supplierId])
+  @@index([menuItemId])
+}
+
+// Suppliers
+model Supplier {
+  id              String          @id @default(cuid())
+  name            String
+  contact         String?
+  email           String?
+  phone           String?
+  address         String?
+  active          Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  inventoryItems  InventoryItem[]
+
+  @@index([active])
+}
+
+// Stock adjustment logs
+model StockLog {
+  id              String        @id @default(cuid())
+  inventoryItemId String
+  quantityChange  Decimal       @db.Decimal(10, 2)
+  type            String        // RESTOCK, WASTE, THEFT, CORRECTION
+  reason          String?
+  userId          String?
+  createdAt       DateTime      @default(now())
+
+  // Relations
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+
+  @@index([inventoryItemId])
+  @@index([createdAt])
+}
+
+// Staff shifts
+model Shift {
+  id              String   @id @default(cuid())
+  userId          String
+  clockIn         DateTime
+  clockOut        DateTime?
+  breakMinutes    Int      @default(0)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([clockIn])
+}
+
+// Customers (optional loyalty program)
+model Customer {
+  id              String   @id @default(cuid())
+  name            String
+  email           String?  @unique
+  phone           String?  @unique
+  loyaltyPoints   Int      @default(0)
+  totalSpent      Decimal  @db.Decimal(10, 2) @default(0)
+  visitCount      Int      @default(0)
+  lastVisit       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([email])
+  @@index([phone])
+}
+
+// System settings
+model Setting {
+  id              String   @id @default(cuid())
+  key             String   @unique
+  value           String
+  description     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([key])
+}
